@@ -1,0 +1,9 @@
+:root {
+	--dark: #000000;
+}
+
+body {
+	margin: 0;
+	background-color: var(--dark);
+	overflow: hidden;
+}

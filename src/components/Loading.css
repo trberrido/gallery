@@ -1,0 +1,18 @@
+.loading__background {
+	height: 100vh;
+	width: 100%;
+	background-repeat: no-repeat;
+	background-position: center;
+	position: relative;
+	z-index: 1;
+}
+
+.loading__percent {
+	color: white;
+	font-family: 'Segoe UI', sans-serif;
+	position: absolute;
+	top: 1rem;
+	left: 1rem;
+	font-weight: 800;
+	margin: 0;
+}
