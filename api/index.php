@@ -3,7 +3,7 @@
 $images_configurations = [];
 $configuration_index = 0;
 
-$image_folder = '../images/';
+$image_folder = './assets/';
 
 while (glob($image_folder . strval($configuration_index) . '_*.*')){
 
@@ -13,8 +13,9 @@ while (glob($image_folder . strval($configuration_index) . '_*.*')){
 	$images_index = 0;
 	while ($images_index < $images_length){
 		$mime_type = explode('/', mime_content_type($images_path[$images_index]))[0];
+
 		if ($mime_type != 'video')
-			array_push($images_configurations[$configuration_index], $images_path[$images_index]);
+			array_push($images_configurations[$configuration_index], '/api/assets/' . basename($images_path[$images_index]));
 		$images_index += 1;
 	}
 	$configuration_index += 1;
