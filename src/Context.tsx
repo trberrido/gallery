@@ -79,16 +79,25 @@ const ContextsProvider = ({children}: Props) => {
 
 	useEffect(() => {
 		const handleKeyUp = (e: KeyboardEvent) => {
-			let nextConfiguration = globalState.currentConfiguration;
-			if (e.code === 'ArrowLeft')
-				nextConfiguration -= 1;
-			if (e.code === 'ArrowRight')
-				nextConfiguration += 1;
-			if (nextConfiguration < 0)
-				nextConfiguration = globalState.configurations!.length - 1;
-			if (nextConfiguration === globalState.configurations!.length)
-				nextConfiguration = 0;
-			globalDispatch({type: 'update', payload: {currentConfiguration: nextConfiguration}});
+			switch (e.code){
+				case 'ArrowLeft' :
+				case 'ArrowRight' :
+					let nextConfiguration = globalState.currentConfiguration;
+					if (e.code === 'ArrowLeft')
+						nextConfiguration -= 1;
+					if (e.code === 'ArrowRight')
+						nextConfiguration += 1;
+					if (nextConfiguration < 0)
+						nextConfiguration = globalState.configurations!.length - 1;
+					if (nextConfiguration === globalState.configurations!.length)
+						nextConfiguration = 0;
+					globalDispatch({type: 'update', payload: {currentConfiguration: nextConfiguration}});
+					break;
+				case 'Escape' :
+					if (globalState.mode === 'zoom')
+						globalDispatch({type: 'update', payload: { mode: 'default'}})
+				break;
+			}
 		};
 		window.addEventListener('keyup', handleKeyUp);
 		return () => window.removeEventListener('keyup', handleKeyUp);

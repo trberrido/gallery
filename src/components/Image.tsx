@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useGlobalContext } from "../Context";
 
 import './Image.css';
+import spinner from '../assets/spinner.svg';
 
 type ImageProps = {
 	src: string;
@@ -17,10 +18,11 @@ type ImageZoomProps = {
 
 const ImageZoom = ({src, handleClick}: ImageZoomProps) => {
 	const filetype = src.substring(src.lastIndexOf('_') + 1, src.lastIndexOf('.'));
-	
+
 	return (
 		<div
 			className='image-zoomed__container animation--fadein'
+			style={{backgroundImage: `url(${spinner})`}}
 			onClick={(e) => { e.stopPropagation(); handleClick(false)}} >
 				{
 				filetype === 'video' ?
