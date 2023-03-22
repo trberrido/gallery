@@ -21,5 +21,6 @@ while (glob($image_folder . strval($configuration_index) . '_*.*')){
 	$configuration_index += 1;
 }
 
+header("Access-Control-Allow-Origin: http://localhost:3000");
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode($images_configurations);

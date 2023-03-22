@@ -1,16 +1,22 @@
 import spinner from '../assets/spinner.svg';
 import './Loading.css';
 
-type LoadingProps = { percent: number };
+type Props = {
+	percent: number
+}
 
-const Loading = ({ percent }: LoadingProps) => {
+const Loading = ({percent}: Props) => {
 
 	return (
-		<div
-			style={{ backgroundImage: `url(${spinner})` }}
-			className='loading__background'>
-				<p className='loading__percent'>{ Math.floor(percent) }%</p>
-		</div>
+		<>
+			<div
+				style={{ backgroundImage: `url(${spinner})` }}
+				className='loading__background'>
+					<p className='loading__percent'>
+						{Math.floor(percent)}%
+					</p>
+			</div>
+		</>
 	);
 }
 

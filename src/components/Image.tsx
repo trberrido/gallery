@@ -1,19 +1,19 @@
-import { useHeightContext, useDataContext } from "../context";
+type ImageProps = {
+	src: string;
+	height: number;
+	handleLoading: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void
+};
 
-type ImageProps = {src: string};
-
-const Image = ({src}: ImageProps) => {
-
-	const dispatch = useDataContext().dispatch;
-
-	const height = useHeightContext();
+const Image = ({ src, height, handleLoading }: ImageProps) => {
 
 	return (
 		<img
+			className='configuration__image'
 			alt=''
-			height={ height }
-			src={ 'https://' + window.location.hostname + src }
-			onLoad={ () => dispatch({ type: 'imageLoaded' }) } />
+			height={height}
+	//		src={ 'https://' + window.location.hostname + src }
+			src={ 'http://' + window.location.hostname + ':8000/' + src }
+			onLoad={handleLoading} />
 	);
 
 }

@@ -1,30 +1,37 @@
+import { useEffect } from 'react';
 import Configuration from './components/Configuration';
 import Loading from './components/Loading'
-import { useDataContext } from './context';
-import { useMemo } from 'react';
 
-type ConfigurationState = string[];
+import { useGlobalContext } from './Context';
 
 function App() {
 
-	const data = useDataContext().data;
-	const totalImages = useMemo(() => {
-		return data.configurations ? data.configurations!.reduce((accumulator, configuration) => accumulator + configuration.length, 0) : 1
-	}, [data.configurations])
-	const percent = data.loadedImages * 100 / totalImages;
+	const {globalState, globalDispatch} = useGlobalContext();
+	const percent = globalState.total > 0 ? globalState.loaded * 100 / globalState.total : 0;
+
+	useEffect(() => {
+		if (globalState.loaded === globalState.total){
+			globalDispatch({
+				type: 'update',
+				payload: {
+					mode: 'open'
+				}
+			})
+		}
+	}, [globalState.loaded, globalState.total])
 
 	return (
 		<>
 		{
-			(data.loadedImages !== totalImages) && <Loading percent={ percent } />
+			(globalState.mode === 'closed') && <Loading percent={percent} />
 		}
 		{
-			data.isLoaded && data.configurations!.map((configuration:ConfigurationState, index:number) => (
+			globalState.configurations && globalState.configurations?.map((images:string[], index) => (
 				<Configuration
-					index={ index }
-					images={ configuration }
-					key={ index.toString() } />
-				))
+					index={index}
+					images={images}
+					key={index} />
+			))
 		}
 		</>
 	);

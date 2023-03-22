@@ -1,9 +1,11 @@
 :root {
-	--dark: #000000;
+	--background: #000000;
+	--text: #ffffff;
+	--font: 'Segoe UI', sans-serif;
 }
 
 body {
 	margin: 0;
-	background-color: var(--dark);
+	background-color: var(--background);
 	overflow: hidden;
 }
