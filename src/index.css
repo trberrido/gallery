@@ -4,8 +4,34 @@
 	--font: 'Segoe UI', sans-serif;
 }
 
+@keyframes fadein {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes zoomin {
+	from {
+		transform: scale(.7);
+	}
+	to {
+		transform: scale(1);
+	}
+}
+
 body {
 	margin: 0;
 	background-color: var(--background);
 	overflow: hidden;
+}
+
+.animation--fadein {
+	animation: fadein .5s ease-in-out;
+}
+
+.animation--zoomin {
+	animation: zoomin .75s ease-in-out;
 }

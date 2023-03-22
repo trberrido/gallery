@@ -14,16 +14,17 @@ function App() {
 			globalDispatch({
 				type: 'update',
 				payload: {
-					mode: 'open'
+					status: 'open'
 				}
 			})
 		}
+	// eslint-disable-next-line
 	}, [globalState.loaded, globalState.total])
 
 	return (
 		<>
 		{
-			(globalState.mode === 'closed') && <Loading percent={percent} />
+			(globalState.status === 'closed') && <Loading percent={percent} />
 		}
 		{
 			globalState.configurations && globalState.configurations?.map((images:string[], index) => (

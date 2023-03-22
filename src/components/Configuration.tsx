@@ -4,7 +4,6 @@ import Image from './Image';
 import { useGlobalContext } from '../Context';
 
 import './Configuration.css';
-import { resolveModuleNameFromCache } from 'typescript';
 
 type dimensions = {w: number; h: number; }
 
@@ -69,44 +68,42 @@ const Configuration = ({images, index}: ConfigurationProps) => {
 		})
 	}
 
-	const resize = () => {
-		console.log(window.innerWidth)
-		var h = window.innerHeight;
+	const fitResize = () => {
+		let newHeight = window.innerHeight;
 		do {
-			var dimensions = state.dimensions.map((d) => ({ w: Math.ceil(h * d.w / d.h), h: h}))
-			var {nbRow, width} = dimensions.reduce((acc, curr) => {
-				var nextAcc = {
+			let safeHeight = newHeight;
+			let dimensions = state.dimensions.map((d) => ({ w: Math.ceil(safeHeight * d.w / d.h), h: safeHeight}))
+			var {nbRows} = dimensions.reduce((acc, curr) => {
+				let nextAcc = {
 					width: acc.width + curr.w,
-					nbRow: acc.nbRow
+					nbRows: acc.nbRows
 				}
 				if (nextAcc.width >= window.innerWidth * .9){
 					nextAcc.width = 0;
-					nextAcc.nbRow += 1;
+					nextAcc.nbRows += 1;
 				}
 				return nextAcc;
-			}, {nbRow: 1, width: 0})
-			h -= 1;
-			if (index === 2)
-				console.log('@', nbRow)
-		} while (nbRow * h > window.innerHeight)
-		return h;
+			}, {nbRows: 1, width: 0})
+			newHeight -= 1;
+		} while (nbRows * newHeight > window.innerHeight)
+		return newHeight;
 	}
 
 	useEffect(() => {
 		if (isComplete === true){
-			console.log('index done', index)
-			setHeight(resize());
+			setHeight(fitResize());
 		}
+		// eslint-disable-next-line
 	}, [isComplete])
 
 	useEffect(() => {
 
 		const handleResize = () => {
-			setHeight(resize());
+			setHeight(fitResize());
 		};
 		window.addEventListener('resize', handleResize);
 		return () => window.removeEventListener('resize', handleResize);
-
+		// eslint-disable-next-line
 	}, [state.dimensions]);
 
 	return (

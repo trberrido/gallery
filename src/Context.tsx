@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 
-type Modes = 'open' | 'closed'
+type Status = 'open' | 'closed';
+type Modes = 'selection' | 'zoom' | 'default';
 
 type StateGlobal = {
 	mode: Modes;
+	status: Status;
 	currentConfiguration: number;
 	configurations: string[][] | null;
 	total: number;
@@ -19,13 +21,15 @@ type ActionGlobal = {
 		total?:number;
 		loaded?:number;
 		mode?: Modes;
+		status?: Status;
 		currentConfiguration?: number;
 		configurations?: string[][];
 	}
 }
 
 const initialGlobalState:StateGlobal = {
-	mode: 'closed',
+	status: 'closed',
+	mode: 'default',
 	currentConfiguration: 0,
 	configurations: null,
 	total: -1,
