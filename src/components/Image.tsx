@@ -16,13 +16,21 @@ type ImageZoomProps = {
 }
 
 const ImageZoom = ({src, handleClick}: ImageZoomProps) => {
+	const filetype = src.substring(src.lastIndexOf('_') + 1, src.lastIndexOf('.'));
+	
 	return (
 		<div
 			className='image-zoomed__container animation--fadein'
-			onClick={() => handleClick(false)} >
-				<div
+			onClick={(e) => { e.stopPropagation(); handleClick(false)}} >
+				{
+				filetype === 'video' ?
+				<video loop controls autoPlay
+					className='image-zoomed__video animation--zoomin'
+					src={ src.substring(0, src.lastIndexOf('_')) + '.mp4'} />
+				: <div
 					className='image-zoomed__image animation--zoomin'
 					style={{backgroundImage: `url(${src})`}} />
+				}
 		</div>
 	);
 }
