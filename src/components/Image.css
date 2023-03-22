@@ -1,31 +1,3 @@
-.image-zoomed__container {
-	position: absolute;
-
-	background-position: center;
-	background-repeat: no-repeat;
-	background-color: var(--background);
-
-	z-index: 2;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
-	align-items: center;
-	align-content: center;
-}
-
-.image-zoomed__image {
-	width: 95vw;
-	height: 95vh;
-	background-position: center;
-	background-repeat: no-repeat;
-	background-size: contain;
-}
-
 .configuration__image {
 	padding: 1px;
 }

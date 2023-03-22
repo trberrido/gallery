@@ -3,6 +3,7 @@ import Configuration from './components/Configuration';
 import Loading from './components/Loading'
 
 import { useGlobalContext } from './Context';
+import ZoomLayout from './components/ZoomLayout';
 
 function App() {
 
@@ -33,6 +34,11 @@ function App() {
 					images={images}
 					key={index} />
 			))
+		}
+		{
+			globalState.mode === 'zoom' &&
+			<ZoomLayout
+				src={globalState.configurations![globalState.currentConfiguration][globalState.currentZoom]} />
 		}
 		</>
 	);

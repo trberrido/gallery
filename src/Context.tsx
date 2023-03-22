@@ -7,6 +7,7 @@ type StateGlobal = {
 	mode: Modes;
 	status: Status;
 	currentConfiguration: number;
+	currentZoom: number;
 	configurations: string[][] | null;
 	total: number;
 	loaded: number;
@@ -23,6 +24,7 @@ type ActionGlobal = {
 		mode?: Modes;
 		status?: Status;
 		currentConfiguration?: number;
+		currentZoom?: number;
 		configurations?: string[][];
 	}
 }
@@ -31,6 +33,7 @@ const initialGlobalState:StateGlobal = {
 	status: 'closed',
 	mode: 'default',
 	currentConfiguration: 0,
+	currentZoom: 0,
 	configurations: null,
 	total: -1,
 	loaded: 0
@@ -82,20 +85,29 @@ const ContextsProvider = ({children}: Props) => {
 			switch (e.code){
 				case 'ArrowLeft' :
 				case 'ArrowRight' :
-					let nextConfiguration = globalState.currentConfiguration;
+					let groupLength = globalState.configurations!.length
+					let nextElement = globalState.currentConfiguration;
+					if (globalState.mode === 'zoom'){
+						groupLength = globalState.configurations![globalState.currentConfiguration].length
+						nextElement = globalState.currentZoom;
+					}
 					if (e.code === 'ArrowLeft')
-						nextConfiguration -= 1;
+						nextElement -= 1;
 					if (e.code === 'ArrowRight')
-						nextConfiguration += 1;
-					if (nextConfiguration < 0)
-						nextConfiguration = globalState.configurations!.length - 1;
-					if (nextConfiguration === globalState.configurations!.length)
-						nextConfiguration = 0;
-					globalDispatch({type: 'update', payload: {currentConfiguration: nextConfiguration}});
+						nextElement += 1;
+					if (nextElement < 0)
+						nextElement = groupLength - 1;
+					if (nextElement === groupLength)
+						nextElement = 0;
+					if (globalState.mode === 'zoom'){
+						globalDispatch({type:'update', payload: {currentZoom: nextElement}})
+					} else {
+						globalDispatch({type: 'update', payload: { currentConfiguration: nextElement}});
+					}
 					break;
 				case 'Escape' :
 					if (globalState.mode === 'zoom')
-						globalDispatch({type: 'update', payload: { mode: 'default'}})
+						globalDispatch({type: 'update', payload: { mode: 'default'}});
 				break;
 			}
 		};

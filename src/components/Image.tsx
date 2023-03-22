@@ -1,79 +1,39 @@
-import { useEffect, useState } from "react";
-
 import { useGlobalContext } from "../Context";
 
 import './Image.css';
-import spinner from '../assets/spinner.svg';
 
 type ImageProps = {
 	src: string;
+	indexImage: number;
+	indexConfiguration: number;
 	height: number;
 	handleLoading: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void
 };
 
-type ImageZoomProps = {
-	src: string,
-	handleClick: React.Dispatch<React.SetStateAction<boolean>>
-}
+const Image = ({ src, height, indexImage, indexConfiguration, handleLoading }: ImageProps) => {
 
-const ImageZoom = ({src, handleClick}: ImageZoomProps) => {
-	const filetype = src.substring(src.lastIndexOf('_') + 1, src.lastIndexOf('.'));
+	const globalDispatch = useGlobalContext().globalDispatch;
 
-	return (
-		<div
-			className='image-zoomed__container animation--fadein'
-			style={{backgroundImage: `url(${spinner})`}}
-			onClick={(e) => { e.stopPropagation(); handleClick(false)}} >
-				{
-				filetype === 'video' ?
-				<video loop controls autoPlay
-					className='image-zoomed__video animation--zoomin'
-					src={ src.substring(0, src.lastIndexOf('_')) + '.mp4'} />
-				: <div
-					className='image-zoomed__image animation--zoomin'
-					style={{backgroundImage: `url(${src})`}} />
-				}
-		</div>
-	);
-}
-
-const Image = ({ src, height, handleLoading }: ImageProps) => {
-
-	const {globalState, globalDispatch} = useGlobalContext();
-	const [zoom, setZoom] = useState(globalState.mode === 'zoom');
-
-	const handdleClick = (e:React.MouseEvent<HTMLImageElement, MouseEvent>) => {
-		setZoom(true);
+	const handleClick = (e:React.MouseEvent<HTMLImageElement, MouseEvent>) => {
 		globalDispatch({
 			type: 'update',
 			payload: {
-				mode: 'zoom'
+				mode: 'zoom',
+				currentZoom: indexImage,
+				currentConfiguration: indexConfiguration
 			}
 		})
 	}
 
-	useEffect(() => {
-		if (globalState.mode !== 'zoom')
-			setZoom(false);
-	}, [globalState.mode])
-
 	return (
-		<>
-			{
-				zoom &&
-				<ImageZoom
-					src={ 'http://' + window.location.hostname + ':8000/' + src }
-					handleClick={setZoom} />
-			}
-			<img
-				className='configuration__image'
-				alt=''
-				height={height}
-				onClick={handdleClick}
-		//		src={ 'https://' + window.location.hostname + src }
-				src={ 'http://' + window.location.hostname + ':8000/' + src }
-				onLoad={handleLoading} />
-		</>
+		<img
+			className='configuration__image'
+			alt=''
+			height={height}
+			onClick={handleClick}
+	//		src={ 'https://' + window.location.hostname + src }
+			src={ 'http://' + window.location.hostname + ':8000/' + src }
+			onLoad={handleLoading} />
 	);
 
 }

@@ -1,4 +1,4 @@
-import { useReducer, useState, useEffect } from 'react';
+import React, { useReducer, useState, useEffect } from 'react';
 
 import Image from './Image';
 import { useGlobalContext } from '../Context';
@@ -103,17 +103,20 @@ const Configuration = ({images, index}: ConfigurationProps) => {
 		};
 		window.addEventListener('resize', handleResize);
 		return () => window.removeEventListener('resize', handleResize);
+
 		// eslint-disable-next-line
 	}, [state.dimensions]);
 
 	return (
 		<div className={'configuration configuration' + (display && isComplete ? '--visible' : '--hidden')}>
 			{
-				images.map((image) => (
+				images.map((image, indexImage) => (
 					<Image
 						height={height}
 						handleLoading={handleLoading}
 						key={image}
+						indexConfiguration={index}
+						indexImage={indexImage}
 						src={image} />
 				))
 			}
