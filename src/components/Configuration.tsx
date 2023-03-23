@@ -16,7 +16,6 @@ type ImagesInformations = {
 type State = {
 	loaded: number;
 	data: string[];
-	dimensions: Dimensions[];
 	orderedImages: ImagesInformations[];
 	setIsComplete: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -47,6 +46,7 @@ type ConfigurationProps = {
 }
 
 const Configuration = (({images, index}: ConfigurationProps) => {
+
 	const {globalState, globalDispatch} = useGlobalContext();
 	const display = globalState.currentConfiguration === index;
 	const [listImages, setListImages] = useState<ImagesInformations[]>(images.map((image) => {return ({src: image})}));
@@ -54,7 +54,6 @@ const Configuration = (({images, index}: ConfigurationProps) => {
 	const initialState:State = {
 		loaded: 0,
 		data: images,
-		dimensions:[],
 		orderedImages: [],
 		setIsComplete: setIsComplete
 	}
@@ -122,7 +121,7 @@ const Configuration = (({images, index}: ConfigurationProps) => {
 		// eslint-disable-next-line
 	}, [listImages]);
 
-
+	/* Applying randomised or orderering commands */
 	useEffect(() => {
 		if (globalState.status === 'closed'
 			|| globalState.currentConfiguration !== index
