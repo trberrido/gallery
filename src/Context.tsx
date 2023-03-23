@@ -1,26 +1,31 @@
 import React, { createContext, useContext, useReducer, useEffect } from "react";
+import idGenerator from "./utils/idgenerator";
 
 type Status = 'open' | 'closed';
-type Modes = 'selection' | 'zoom' | 'default';
-type Options = 'random' | 'ordered';
+type Modes = 'selection' | 'zoom' | 'default' | 'aligned';
 type Commands = 'random' | 'order' | 'done';
+
+export type FetchedData = {
+	'id': string;
+	'images': string[];
+}
 
 type StateGlobal = {
 	command: Commands;
 	mode: Modes;
 	status: Status;
-	option: Options;
+	newConfiguration: string[];
 	currentConfiguration: number;
 	currentZoom: number;
-	configurations: string[][] | null;
+	configurations: FetchedData[] | null;
 	total: number;
 	loaded: number;
 }
 
-type Fields = 'loaded';
+type Fields = 'loaded' | 'newConfiguration' | 'configurations' | 'currentConfiguration';
 
 type ActionGlobal = {
-	type: 'update' | 'increment';
+	type: 'update' | 'increment' | 'push' | 'pop';
 	payload: {
 		command?: Commands;
 		field?: Fields;
@@ -28,19 +33,20 @@ type ActionGlobal = {
 		total?:number;
 		loaded?:number;
 		mode?: Modes;
-		option?: Options;
 		status?: Status;
+		item?: string;
+		newConfiguration?: string[];
 		currentConfiguration?: number;
 		currentZoom?: number;
-		configurations?: string[][];
+		configurations?: FetchedData[];
 	}
 }
 
 const initialGlobalState:StateGlobal = {
 	status: 'closed',
 	mode: 'default',
-	option: 'ordered',
 	command: 'done',
+	newConfiguration: [],
 	currentConfiguration: 0,
 	currentZoom: 0,
 	configurations: null,
@@ -60,11 +66,32 @@ const reducer = (state: StateGlobal, action: ActionGlobal):StateGlobal => {
 			...action.payload
 		})
 	}
-	if (action.type === 'increment'){
+	if (action.type === 'push'){
 		const fieldName = action.payload.field as Fields;
+		const updatedField:string[] = structuredClone(state[fieldName]);
+		const newElement = action.payload.item as string;
+		updatedField.push(newElement)
 		return ({
 			...state,
-			[fieldName]: state[fieldName] + 1
+			[fieldName]: updatedField
+		})
+	}
+	if (action.type === 'pop'){
+		const fieldName = action.payload.field as Fields;
+		const targetedArray =  state[fieldName] as string[];
+		const popedItem = action.payload.item as string;
+		const updatedField:string[] = targetedArray.filter((item) => item !== popedItem);
+		return ({
+			...state,
+			[fieldName]: updatedField
+		})
+	}
+	if (action.type === 'increment'){
+		const fieldName = action.payload.field as Fields;
+		const updatedField = (state[fieldName] as number) + 1
+		return ({
+			...state,
+			[fieldName]: updatedField
 		})
 	}
 	return (state);
@@ -81,22 +108,86 @@ const ContextsProvider = ({children}: Props) => {
 	useEffect(() => {
 		fetch('http://' + window.location.hostname + ':8000/api/')
 			.then(response => response.json())
-			.then((result:string[][]) => {
+			.then((result:FetchedData[]) => {
 				globalDispatch({type: 'update', payload: {
 					configurations: result,
-					total: result.reduce((previous, current) => previous + current.length, 0)
+					total: result.reduce((previous, current) => previous + current.images.length, 0)
 				}})
 			})
 	}, []);
 
 	useEffect(() => {
+		const handleKeydown = (e: KeyboardEvent) => {
+			switch (e.code){
+				case 'ShiftLeft':
+				case 'ShiftRight':
+					if (globalState.mode === 'selection')
+						return ;
+					globalDispatch({
+						type: 'update',
+						payload: {
+							mode: 'selection'
+						}
+					})
+					break ;
+				case 'KeyA':
+				case 'ControlLeft':
+				case 'ControlRight':
+					if (globalState.mode === 'aligned')
+						return ;
+					globalDispatch({
+						type: 'update',
+						payload: {
+							mode: 'aligned'
+						}
+					})
+					break;
+			}
+		}
 		const handleKeyUp = (e: KeyboardEvent) => {
 			switch (e.code){
+				case 'KeyA':
+				case 'ControlLeft':
+				case 'ControlRight':
+					globalDispatch({
+						type: 'update',
+						payload: {
+							mode: 'default'
+						}
+					})
+					break;
+				case 'Enter':
+					if (globalState.newConfiguration.length > 0){
+						const nextConfigurations:FetchedData[] = structuredClone(globalState.configurations);
+						const newConfiguration:FetchedData = {
+							id: idGenerator(4),
+							images: [...globalState.newConfiguration]
+						}
+						nextConfigurations.splice(globalState.currentConfiguration + 1, 0, newConfiguration)
+						globalDispatch({
+							type: 'update',
+							payload: {
+								mode: 'default',
+								configurations: nextConfigurations,
+								currentConfiguration: globalState.currentConfiguration + 1,
+								newConfiguration: []
+							}
+						})
+					}
+					break ;
 				case 'KeyR':
 					globalDispatch({
 						type: 'update',
 						payload: {
 							command: 'random'
+						}
+					})
+					break ;
+				case 'KeyS':
+					globalDispatch({
+						type: 'update',
+						payload: {
+							mode: globalState.mode === 'selection' ? 'default' : 'selection'
 						}
 					})
 					break ;
@@ -113,7 +204,7 @@ const ContextsProvider = ({children}: Props) => {
 					let groupLength = globalState.configurations!.length
 					let nextElement = globalState.currentConfiguration;
 					if (globalState.mode === 'zoom'){
-						groupLength = globalState.configurations![globalState.currentConfiguration].length
+						groupLength = globalState.configurations![globalState.currentConfiguration].images.length
 						nextElement = globalState.currentZoom;
 					}
 					if (e.code === 'ArrowLeft')
@@ -137,7 +228,11 @@ const ContextsProvider = ({children}: Props) => {
 			}
 		};
 		window.addEventListener('keyup', handleKeyUp);
-		return () => window.removeEventListener('keyup', handleKeyUp);
+		window.addEventListener('keydown', handleKeydown);
+		return () => {
+			window.removeEventListener('keyup', handleKeyUp);
+			window.removeEventListener('keydown', handleKeydown);
+		};
 	}, [globalState])
 
 	return (

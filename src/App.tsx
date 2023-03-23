@@ -2,7 +2,7 @@ import { useEffect, memo } from 'react';
 import Configuration from './components/Configuration';
 import Loading from './components/Loading'
 
-import { useGlobalContext } from './Context';
+import { useGlobalContext, FetchedData } from './Context';
 
 const App = memo(() => {
 
@@ -27,11 +27,11 @@ const App = memo(() => {
 			(globalState.status === 'closed') && <Loading percent={percent} />
 		}
 		{
-			globalState.configurations && globalState.configurations?.map((images:string[], index) => (
+			globalState.configurations && globalState.configurations.map((data:FetchedData, index) => (
 				<Configuration
 					index={index}
-					images={images}
-					key={index} />
+					images={data.images}
+					key={data.id} />
 			))
 		}
 		</>

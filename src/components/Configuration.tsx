@@ -1,4 +1,4 @@
-import React, { useReducer, useState, useEffect } from 'react';
+import React, { useReducer, useState, useEffect, memo } from 'react';
 
 import Image from './Image';
 import ZoomLayout from './ZoomLayout';
@@ -45,7 +45,7 @@ type ConfigurationProps = {
 	index: number;
 }
 
-const Configuration = (({images, index}: ConfigurationProps) => {
+const Configuration = memo(({images, index}: ConfigurationProps) => {
 
 	const {globalState, globalDispatch} = useGlobalContext();
 	const display = globalState.currentConfiguration === index;

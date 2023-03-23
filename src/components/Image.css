@@ -1,5 +1,15 @@
 .configuration__image {
 	padding: 1px;
+	opacity: 0;
+	transition: opacity .5s;
+}
+
+.configuration__image--visible {
+	opacity: 1;
+}
+
+.configuration__image--selected {
+	opacity: .25;
 }
 
 .configuration__image:hover {
