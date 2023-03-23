@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 
 type Status = 'open' | 'closed';
-type Modes = 'selection' | 'zoom' | 'default';
+type Modes = 'selection' | 'zoom' | 'default' | 'random';
 
 type StateGlobal = {
 	mode: Modes;
@@ -19,6 +19,7 @@ type ActionGlobal = {
 	type: 'update' | 'increment';
 	payload: {
 		field?: Fields;
+		index?: number;
 		total?:number;
 		loaded?:number;
 		mode?: Modes;
@@ -83,6 +84,22 @@ const ContextsProvider = ({children}: Props) => {
 	useEffect(() => {
 		const handleKeyUp = (e: KeyboardEvent) => {
 			switch (e.code){
+				case 'KeyR':
+					globalDispatch({
+						type: 'update',
+						payload: {
+							mode: 'random'
+						}
+					})
+					break ;
+				case 'KeyO':
+					globalDispatch({
+						type: 'update',
+						payload: {
+							mode: 'default'
+						}
+					})
+					break ;
 				case 'ArrowLeft' :
 				case 'ArrowRight' :
 					let groupLength = globalState.configurations!.length

@@ -31,10 +31,10 @@ const ZoomLayout = ({src}: ImageZoomProps) => {
 					<video loop controls autoPlay
 						onPlay={() => {setVideoReady(true)}}
 						className={'image-zoomed__video' + (videoReady ? ' animation--fadein': '--hidden')}
-						src={ 'http://' + window.location.hostname + ':8000/' + src.substring(0, src.lastIndexOf('_')) + '.mp4'} />
+						src={src.substring(0, src.lastIndexOf('_')) + '.mp4'} />
 					: <div
 						className='image-zoomed__image'
-						style={{backgroundImage: `url(${ 'http://' + window.location.hostname + ':8000/' + src})`}} />
+						style={{backgroundImage: `url(${src})`}} />
 					}
 				</div>
 		</div>

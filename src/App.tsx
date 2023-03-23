@@ -1,11 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, memo } from 'react';
 import Configuration from './components/Configuration';
 import Loading from './components/Loading'
 
 import { useGlobalContext } from './Context';
-import ZoomLayout from './components/ZoomLayout';
 
-function App() {
+const App = memo(() => {
 
 	const {globalState, globalDispatch} = useGlobalContext();
 	const percent = globalState.total > 0 ? globalState.loaded * 100 / globalState.total : 0;
@@ -20,7 +19,7 @@ function App() {
 			})
 		}
 	// eslint-disable-next-line
-	}, [globalState.loaded, globalState.total])
+	}, [globalState.loaded])
 
 	return (
 		<>
@@ -35,14 +34,9 @@ function App() {
 					key={index} />
 			))
 		}
-		{
-			globalState.mode === 'zoom' &&
-			<ZoomLayout
-				src={globalState.configurations![globalState.currentConfiguration][globalState.currentZoom]} />
-		}
 		</>
 	);
 
-}
+})
 
 export default App;

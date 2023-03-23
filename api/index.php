@@ -15,7 +15,7 @@ while (glob($image_folder . strval($configuration_index) . '_*.*')){
 		$mime_type = explode('/', mime_content_type($images_path[$images_index]))[0];
 
 		if ($mime_type != 'video')
-			array_push($images_configurations[$configuration_index], '/api/assets/' . basename($images_path[$images_index]));
+			array_push($images_configurations[$configuration_index], 'http://' . $_SERVER['HTTP_HOST'] . '/api/assets/' . basename($images_path[$images_index]));
 		$images_index += 1;
 	}
 	$configuration_index += 1;

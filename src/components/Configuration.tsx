@@ -1,34 +1,41 @@
 import React, { useReducer, useState, useEffect } from 'react';
 
 import Image from './Image';
+import ZoomLayout from './ZoomLayout';
 import { useGlobalContext } from '../Context';
 
 import './Configuration.css';
 
-type dimensions = {w: number; h: number; }
+type Dimensions = {w: number; h: number; }
+
+type ImagesInformations = {
+	src: string;
+	dimensions?: Dimensions
+}
 
 type State = {
 	loaded: number;
 	data: string[];
-	dimensions: dimensions[];
-	setIsComplete: React.Dispatch<React.SetStateAction<boolean>>
+	dimensions: Dimensions[];
+	orderedImages: ImagesInformations[];
+	setIsComplete: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 type Action = {
 	type: 'loaded';
-	payload: dimensions;
+	payload: ImagesInformations;
 }
 
 const reducer = (state: State, action: Action):State => {
 	if (action.type === 'loaded'){
 		const loaded = state.loaded + 1;
-		const dimensions = structuredClone(state.dimensions);
-		dimensions.push(action.payload);
+		const imagesData = structuredClone(state.orderedImages);
+		imagesData.push(action.payload);
 		if (loaded === state.data?.length)
 			state.setIsComplete(true);
 		return ({...state,
 			loaded: loaded,
-			dimensions: dimensions
+			orderedImages: imagesData
 		})
 	}
 	return (state);
@@ -39,16 +46,16 @@ type ConfigurationProps = {
 	index: number;
 }
 
-const Configuration = ({images, index}: ConfigurationProps) => {
-
+const Configuration = (({images, index}: ConfigurationProps) => {
 	const {globalState, globalDispatch} = useGlobalContext();
 	const display = globalState.currentConfiguration === index;
-
+	const [listImages, setListImages] = useState<ImagesInformations[]>(images.map((image) => {return ({src: image})}));
 	const [isComplete, setIsComplete] = useState(false);
 	const initialState:State = {
 		loaded: 0,
 		data: images,
 		dimensions:[],
+		orderedImages: [],
 		setIsComplete: setIsComplete
 	}
 	const [state, dispatch] = useReducer(reducer, initialState);
@@ -58,27 +65,31 @@ const Configuration = ({images, index}: ConfigurationProps) => {
 		dispatch({
 			type: 'loaded',
 			payload: {
-				w: e.currentTarget.width,
-				h: e.currentTarget.height,
+				src: e.currentTarget.src,
+				dimensions: {
+					w: e.currentTarget.width,
+					h: e.currentTarget.height,
+				}
 			}
 		})
 		globalDispatch({
 			type: 'increment',
-			payload: { field: 'loaded'}
+			payload: { field: 'loaded' }
 		})
 	}
 
-	const fitResize = () => {
+	const fitResize = (list:ImagesInformations[]) => {
 		let newHeight = window.innerHeight;
+		const dimensions = list.map(image => image.dimensions!);
 		do {
 			let safeHeight = newHeight;
-			let dimensions = state.dimensions.map((d) => ({ w: Math.ceil(safeHeight * d.w / d.h), h: safeHeight}))
-			var {nbRows} = dimensions.reduce((acc, curr) => {
+			let dimensionsTmp = dimensions.map((d) => ({ w: Math.ceil(safeHeight * d.w / d.h), h: safeHeight}))
+			var {nbRows} = dimensionsTmp.reduce((acc, curr) => {
 				let nextAcc = {
 					width: acc.width + curr.w,
 					nbRows: acc.nbRows
 				}
-				if (nextAcc.width >= window.innerWidth * .9){
+				if (nextAcc.width >= window.innerWidth * .8){
 					nextAcc.width = 0;
 					nextAcc.nbRows += 1;
 				}
@@ -90,27 +101,50 @@ const Configuration = ({images, index}: ConfigurationProps) => {
 	}
 
 	useEffect(() => {
+		if (isComplete)
+			setHeight(fitResize(listImages));
+		// eslint-disable-next-line
+	}, [listImages])
+
+	useEffect(() => {
 		if (isComplete === true){
-			setHeight(fitResize());
+			setListImages(structuredClone(state.orderedImages));
 		}
 		// eslint-disable-next-line
 	}, [isComplete])
 
 	useEffect(() => {
-
 		const handleResize = () => {
-			setHeight(fitResize());
+			setHeight(fitResize(listImages));
 		};
 		window.addEventListener('resize', handleResize);
 		return () => window.removeEventListener('resize', handleResize);
-
 		// eslint-disable-next-line
-	}, [state.dimensions]);
+	}, []);
+
+
+	useEffect(() => {
+		if (globalState.status === 'closed')
+			return;
+		if (globalState.mode === 'random'){
+			type Map1 = { value: ImagesInformations; sort: number; }
+			type Map2 = { value: ImagesInformations; }
+			const randListImages:ImagesInformations[] = structuredClone(listImages)
+				.map((value:ImagesInformations) => ({ value, sort: Math.random() }))
+				.sort((a:Map1, b:Map1) => a.sort - b.sort)
+				.map(({ value }:Map2) => value)
+			setListImages(randListImages);
+		}
+		if (globalState.mode === 'default'){
+			setListImages(state.orderedImages);
+		}
+		// eslint-disable-next-line
+	}, [globalState.mode])
 
 	return (
 		<div className={'configuration configuration' + (display && isComplete ? '--visible' : '--hidden')}>
 			{
-				images.map((image, indexImage) => (
+				listImages.map(imageData => imageData.src).map((image, indexImage) => (
 					<Image
 						height={height}
 						handleLoading={handleLoading}
@@ -120,8 +154,13 @@ const Configuration = ({images, index}: ConfigurationProps) => {
 						src={image} />
 				))
 			}
+			{
+				(globalState.mode === 'zoom' && globalState.currentConfiguration === index) &&
+				<ZoomLayout
+					src={listImages[globalState.currentZoom].src} />
+			}
 		</div>
 	);
-}
+})
 
 export default Configuration;

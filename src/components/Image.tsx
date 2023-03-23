@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useGlobalContext } from "../Context";
 
 import './Image.css';
@@ -10,7 +11,7 @@ type ImageProps = {
 	handleLoading: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void
 };
 
-const Image = ({ src, height, indexImage, indexConfiguration, handleLoading }: ImageProps) => {
+const Image = memo(({ src, height, indexImage, indexConfiguration, handleLoading }: ImageProps) => {
 
 	const globalDispatch = useGlobalContext().globalDispatch;
 
@@ -32,10 +33,10 @@ const Image = ({ src, height, indexImage, indexConfiguration, handleLoading }: I
 			height={height}
 			onClick={handleClick}
 	//		src={ 'https://' + window.location.hostname + src }
-			src={ 'http://' + window.location.hostname + ':8000/' + src }
+			src={ src }
 			onLoad={handleLoading} />
 	);
 
-}
+})
 
 export default Image;
