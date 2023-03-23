@@ -35,3 +35,12 @@ body {
 .animation--zoomin {
 	animation: zoomin .75s ease-in-out;
 }
+
+.layout-black {
+	background-color: var(--background);
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+}

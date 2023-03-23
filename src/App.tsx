@@ -7,6 +7,7 @@ import { useGlobalContext, FetchedData } from './Context';
 const App = memo(() => {
 
 	const {globalState, globalDispatch} = useGlobalContext();
+	const isCompletelyLoaded = globalState.total === globalState.loaded;
 	const percent = globalState.total > 0 ? globalState.loaded * 100 / globalState.total : 0;
 
 	useEffect(() => {
@@ -24,7 +25,9 @@ const App = memo(() => {
 	return (
 		<>
 		{
-			(globalState.status === 'closed') && <Loading percent={percent} />
+			globalState.status === 'closed'
+			&& isCompletelyLoaded === false
+			&& <Loading percent={percent} />
 		}
 		{
 			globalState.configurations && globalState.configurations.map((data:FetchedData, index) => (
@@ -33,6 +36,11 @@ const App = memo(() => {
 					images={data.images}
 					key={data.id} />
 			))
+		}
+		{
+			globalState.status === 'closed'
+			&& isCompletelyLoaded
+			&& <div className='layout-black animation--fadein' />
 		}
 		</>
 	);

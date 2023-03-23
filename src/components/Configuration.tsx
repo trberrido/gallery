@@ -27,6 +27,7 @@ type Action = {
 
 const reducer = (state: State, action: Action):State => {
 	if (action.type === 'loaded'){
+		console.log('loaded')
 		const loaded = state.loaded + 1;
 		const imagesData = structuredClone(state.orderedImages);
 		imagesData.push(action.payload);

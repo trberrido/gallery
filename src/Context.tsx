@@ -167,6 +167,7 @@ const ContextsProvider = ({children}: Props) => {
 						globalDispatch({
 							type: 'update',
 							payload: {
+								total: nextConfigurations.reduce((previous, current) => previous + current.images.length, 0),
 								mode: 'default',
 								configurations: nextConfigurations,
 								currentConfiguration: globalState.currentConfiguration + 1,
@@ -224,6 +225,13 @@ const ContextsProvider = ({children}: Props) => {
 				case 'Escape' :
 					if (globalState.mode === 'zoom')
 						globalDispatch({type: 'update', payload: { mode: 'default'}});
+					break;
+				case 'KeyN' :
+				case 'KeyB' :
+					if (globalState.loaded !== globalState.total)
+						return ;
+					const newStatus = globalState.status === 'open' ? 'closed' : 'open';
+					globalDispatch({type: 'update', payload: { status: newStatus}})
 				break;
 			}
 		};
