@@ -120,13 +120,15 @@ const Configuration = (({images, index}: ConfigurationProps) => {
 		window.addEventListener('resize', handleResize);
 		return () => window.removeEventListener('resize', handleResize);
 		// eslint-disable-next-line
-	}, []);
+	}, [listImages]);
 
 
 	useEffect(() => {
-		if (globalState.status === 'closed')
+		if (globalState.status === 'closed'
+			|| globalState.currentConfiguration !== index
+			|| globalState.command === 'done')
 			return;
-		if (globalState.mode === 'random'){
+		if (globalState.command === 'random'){
 			type Map1 = { value: ImagesInformations; sort: number; }
 			type Map2 = { value: ImagesInformations; }
 			const randListImages:ImagesInformations[] = structuredClone(listImages)
@@ -135,11 +137,17 @@ const Configuration = (({images, index}: ConfigurationProps) => {
 				.map(({ value }:Map2) => value)
 			setListImages(randListImages);
 		}
-		if (globalState.mode === 'default'){
+		if (globalState.command === 'order'){
 			setListImages(state.orderedImages);
 		}
+		globalDispatch({
+			type: 'update',
+			payload: {
+				command: 'done'
+			}
+		})
 		// eslint-disable-next-line
-	}, [globalState.mode])
+	}, [globalState.command])
 
 	return (
 		<div className={'configuration configuration' + (display && isComplete ? '--visible' : '--hidden')}>

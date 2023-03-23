@@ -1,11 +1,15 @@
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 
 type Status = 'open' | 'closed';
-type Modes = 'selection' | 'zoom' | 'default' | 'random';
+type Modes = 'selection' | 'zoom' | 'default';
+type Options = 'random' | 'ordered';
+type Commands = 'random' | 'order' | 'done';
 
 type StateGlobal = {
+	command: Commands;
 	mode: Modes;
 	status: Status;
+	option: Options;
 	currentConfiguration: number;
 	currentZoom: number;
 	configurations: string[][] | null;
@@ -18,11 +22,13 @@ type Fields = 'loaded';
 type ActionGlobal = {
 	type: 'update' | 'increment';
 	payload: {
+		command?: Commands;
 		field?: Fields;
 		index?: number;
 		total?:number;
 		loaded?:number;
 		mode?: Modes;
+		option?: Options;
 		status?: Status;
 		currentConfiguration?: number;
 		currentZoom?: number;
@@ -33,6 +39,8 @@ type ActionGlobal = {
 const initialGlobalState:StateGlobal = {
 	status: 'closed',
 	mode: 'default',
+	option: 'ordered',
+	command: 'done',
 	currentConfiguration: 0,
 	currentZoom: 0,
 	configurations: null,
@@ -88,7 +96,7 @@ const ContextsProvider = ({children}: Props) => {
 					globalDispatch({
 						type: 'update',
 						payload: {
-							mode: 'random'
+							command: 'random'
 						}
 					})
 					break ;
@@ -96,7 +104,7 @@ const ContextsProvider = ({children}: Props) => {
 					globalDispatch({
 						type: 'update',
 						payload: {
-							mode: 'default'
+							command: 'order'
 						}
 					})
 					break ;
