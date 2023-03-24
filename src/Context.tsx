@@ -110,7 +110,7 @@ const ContextsProvider = ({children}: Props) => {
 	const [globalState, globalDispatch] = useReducer(reducer, initialGlobalState);
 
 	useEffect(() => {
-		fetch('http://' + window.location.hostname + '/api/')
+		fetch('https://' + window.location.hostname + '/api/')
 			.then(response => response.json())
 			.then((result:FetchedData[]) => {
 				globalDispatch({type: 'update', payload: {
@@ -122,7 +122,6 @@ const ContextsProvider = ({children}: Props) => {
 
 	useEffect(() => {
 		const handleKeyUp = (e: KeyboardEvent) => {
-			console.log(e.code)
 			switch (e.code){
 				case  'Digit0' :
 				case  'Digit1' :
