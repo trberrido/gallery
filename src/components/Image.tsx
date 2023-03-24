@@ -8,14 +8,20 @@ type ImageProps = {
 	indexImage: number;
 	indexConfiguration: number;
 	height: number;
+	highLight: number;
+	setHighLight: React.Dispatch<React.SetStateAction<number>>;
 	handleLoading: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void
 };
 
-const Image = memo(({ src, height, indexImage, indexConfiguration, handleLoading }: ImageProps) => {
+type State = 'selected' | 'faded' | 'default';
 
+const Image = memo(({ src, height, indexImage, indexConfiguration, highLight, setHighLight, handleLoading }: ImageProps) => {
+
+	const refImage = useRef<HTMLImageElement | null>(null);
 	const {globalState, globalDispatch} = useGlobalContext();
-	const [isSelected, setIsSelected] = useState(false);
 	const [fadeIn, setFadeIn] = useState(false);
+	const [state, setState] = useState<State>('default');
+	const refTimer = useRef<NodeJS.Timeout>();
 
 	useEffect(() => {
 
@@ -26,21 +32,26 @@ const Image = memo(({ src, height, indexImage, indexConfiguration, handleLoading
 
 		if (globalState.loaded === globalState.total){
 
-			let timer:NodeJS.Timeout|null = setTimeout(() => {
+			const timer:NodeJS.Timeout = setTimeout(() => {
 				setFadeIn(true);
 			}, (indexImage + 1) * 100);
+			refTimer.current = timer;
 
-			return () => {
-				clearTimeout(timer!)
-				timer = null;
-			}
+			return () => clearTimeout(refTimer.current)
 		}
 
 	}, [globalState.currentConfiguration, globalState.loaded])
 
 	const handleClick = (e:React.MouseEvent<HTMLImageElement, MouseEvent>) => {
+
+		if (globalState.mode === 'aligned')
+		{
+			setHighLight(e.currentTarget.getBoundingClientRect().top);
+			return ;
+		}
+
 		if (globalState.mode === 'selection'){
-			if (isSelected){
+			if (state === 'selected'){
 				globalDispatch({
 					type: 'pop',
 					payload: {
@@ -48,7 +59,8 @@ const Image = memo(({ src, height, indexImage, indexConfiguration, handleLoading
 						item: src
 					}
 				})
-			} else {
+			}
+			if (state === 'default') {
 				globalDispatch({
 					type: 'push',
 					payload: {
@@ -57,7 +69,7 @@ const Image = memo(({ src, height, indexImage, indexConfiguration, handleLoading
 					}
 				})
 			}
-			setIsSelected(!isSelected);
+			setState(state === 'selected' ? 'default' : 'selected');
 			return ;
 		}
 		globalDispatch({
@@ -70,16 +82,31 @@ const Image = memo(({ src, height, indexImage, indexConfiguration, handleLoading
 	}
 
 	useEffect(() => {
-		if (globalState.mode !== 'selection')
-			setIsSelected(false);
+		if (globalState.currentConfiguration === indexConfiguration ){
+			if (highLight > 0){
+				if (refImage.current && refImage.current.getBoundingClientRect().top !== highLight){
+					setState('faded');
+					return;
+				}
+			}
+		}
+		setState('default')
+	}, [highLight])
+
+	useEffect(() => {
+		if (globalState.mode === 'default')
+			setState('default');
 	}, [globalState.mode])
+
 
 	return (
 		<img
+			ref={refImage}
 			className={
 				'configuration__image'
 				+ (fadeIn ? ' animation--fadein configuration__image--visible': '')
-				+ (isSelected ? ' configuration__image--selected' : '')}
+				+ (state === 'selected' ? ' configuration__image--selected' : '')
+				+ (state === 'faded' ? ' configuration__image--faded' : '')}
 			alt=''
 			height={height}
 			onClick={handleClick}

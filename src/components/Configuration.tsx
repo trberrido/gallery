@@ -27,7 +27,6 @@ type Action = {
 
 const reducer = (state: State, action: Action):State => {
 	if (action.type === 'loaded'){
-		console.log('loaded')
 		const loaded = state.loaded + 1;
 		const imagesData = structuredClone(state.orderedImages);
 		imagesData.push(action.payload);
@@ -52,6 +51,8 @@ const Configuration = memo(({images, index}: ConfigurationProps) => {
 	const display = globalState.currentConfiguration === index;
 	const [listImages, setListImages] = useState<ImagesInformations[]>(images.map((image) => {return ({src: image})}));
 	const [isComplete, setIsComplete] = useState(false);
+	const [highlight, setHighLight] = useState(-1);
+
 	const initialState:State = {
 		loaded: 0,
 		data: images,
@@ -154,6 +155,8 @@ const Configuration = memo(({images, index}: ConfigurationProps) => {
 			{
 				listImages.map(imageData => imageData.src).map((image, indexImage) => (
 					<Image
+						highLight={highlight}
+						setHighLight={setHighLight}
 						height={height}
 						handleLoading={handleLoading}
 						key={image}

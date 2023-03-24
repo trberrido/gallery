@@ -117,42 +117,16 @@ const ContextsProvider = ({children}: Props) => {
 	}, []);
 
 	useEffect(() => {
-		const handleKeydown = (e: KeyboardEvent) => {
+		const handleKeyUp = (e: KeyboardEvent) => {
+			console.log(e.code)
 			switch (e.code){
-				case 'ShiftLeft':
-				case 'ShiftRight':
-					if (globalState.mode === 'selection')
-						return ;
-					globalDispatch({
-						type: 'update',
-						payload: {
-							mode: 'selection'
-						}
-					})
-					break ;
 				case 'KeyA':
-				case 'ControlLeft':
-				case 'ControlRight':
-					if (globalState.mode === 'aligned')
-						return ;
+				case 'AltLeft':
+				case 'AltRight':
 					globalDispatch({
 						type: 'update',
 						payload: {
 							mode: 'aligned'
-						}
-					})
-					break;
-			}
-		}
-		const handleKeyUp = (e: KeyboardEvent) => {
-			switch (e.code){
-				case 'KeyA':
-				case 'ControlLeft':
-				case 'ControlRight':
-					globalDispatch({
-						type: 'update',
-						payload: {
-							mode: 'default'
 						}
 					})
 					break;
@@ -188,7 +162,7 @@ const ContextsProvider = ({children}: Props) => {
 					globalDispatch({
 						type: 'update',
 						payload: {
-							mode: globalState.mode === 'selection' ? 'default' : 'selection'
+							mode: 'selection'
 						}
 					})
 					break ;
@@ -223,8 +197,14 @@ const ContextsProvider = ({children}: Props) => {
 					}
 					break;
 				case 'Escape' :
-					if (globalState.mode === 'zoom')
-						globalDispatch({type: 'update', payload: { mode: 'default'}});
+				case 'Space' :
+					if (globalState.mode === 'zoom'
+						|| globalState.mode === 'aligned'
+						|| globalState.mode === 'selection')
+						globalDispatch({type: 'update', payload: {
+							mode: 'default',
+							newConfiguration: []
+						}});
 					break;
 				case 'KeyN' :
 				case 'KeyB' :
@@ -236,10 +216,8 @@ const ContextsProvider = ({children}: Props) => {
 			}
 		};
 		window.addEventListener('keyup', handleKeyUp);
-		window.addEventListener('keydown', handleKeydown);
 		return () => {
 			window.removeEventListener('keyup', handleKeyUp);
-			window.removeEventListener('keydown', handleKeydown);
 		};
 	}, [globalState])
 

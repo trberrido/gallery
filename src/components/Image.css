@@ -12,8 +12,6 @@
 	opacity: .25;
 }
 
-.configuration__image:hover {
-	cursor: pointer;
-	opacity: .5;
-	transition: opacity .5s;
+.configuration__image--faded {
+	opacity: .25;
 }
