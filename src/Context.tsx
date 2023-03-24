@@ -110,7 +110,9 @@ const ContextsProvider = ({children}: Props) => {
 	const [globalState, globalDispatch] = useReducer(reducer, initialGlobalState);
 
 	useEffect(() => {
-		fetch('https://' + window.location.hostname + '/api/')
+		console.log(window)
+		console.log(window.location)
+		fetch( window.location.href + '/api/')
 			.then(response => response.json())
 			.then((result:FetchedData[]) => {
 				globalDispatch({type: 'update', payload: {
@@ -187,7 +189,7 @@ const ContextsProvider = ({children}: Props) => {
 						}
 						nextConfigurations.splice(globalState.currentConfiguration + 1, 0, newConfiguration)
 					}
-					if (globalState.mode === 'aligned' && globalState.newConfiguration.length > 0){
+					if (globalState.mode === 'selection' && globalState.newConfiguration.length > 0){
 						nextConfigurations = structuredClone(globalState.configurations);
 						newConfiguration = {
 							id: idGenerator(4),
