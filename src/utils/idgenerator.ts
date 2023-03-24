@@ -4,7 +4,7 @@ const idGenerator = (length: number) => {
 	let index = 0;
 	let id = '';
 	while (index < length){
-		id += availableCharacters.charAt(Math.floor(Math.random() * charactersLength))
+		id += availableCharacters.charAt(Math.round(Math.random() * (charactersLength - 1)))
 		index +=1;
 	}
 	return id;

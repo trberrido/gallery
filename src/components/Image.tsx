@@ -94,10 +94,9 @@ const Image = memo(({ src, height, indexImage, indexConfiguration, highLight, se
 	}, [highLight])
 
 	useEffect(() => {
-		if (globalState.mode === 'default')
+		if (globalState.mode === 'default' || globalState.mode === 'mixin')
 			setState('default');
 	}, [globalState.mode])
-
 
 	return (
 		<img

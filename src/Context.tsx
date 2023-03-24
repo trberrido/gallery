@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import idGenerator from "./utils/idgenerator";
+import cToA from './utils/cToA'
 
 type Status = 'open' | 'closed';
-type Modes = 'selection' | 'zoom' | 'default' | 'aligned';
+type Modes = 'selection' | 'zoom' | 'default' | 'aligned' | 'mixin';
 type Commands = 'random' | 'order' | 'done';
 
 export type FetchedData = {
@@ -14,6 +15,7 @@ type StateGlobal = {
 	command: Commands;
 	mode: Modes;
 	status: Status;
+	mixinLength: string;
 	newConfiguration: string[];
 	currentConfiguration: number;
 	currentZoom: number;
@@ -29,6 +31,7 @@ type ActionGlobal = {
 	payload: {
 		command?: Commands;
 		field?: Fields;
+		mixinLength?: string;
 		index?: number;
 		total?:number;
 		loaded?:number;
@@ -46,6 +49,7 @@ const initialGlobalState:StateGlobal = {
 	status: 'closed',
 	mode: 'default',
 	command: 'done',
+	mixinLength: '',
 	newConfiguration: [],
 	currentConfiguration: 0,
 	currentZoom: 0,
@@ -120,6 +124,34 @@ const ContextsProvider = ({children}: Props) => {
 		const handleKeyUp = (e: KeyboardEvent) => {
 			console.log(e.code)
 			switch (e.code){
+				case  'Digit0' :
+				case  'Digit1' :
+				case  'Digit2' :
+				case  'Digit3' :
+				case  'Digit4' :
+				case  'Digit5' :
+				case  'Digit6' :
+				case  'Digit7' :
+				case  'Digit8' :
+				case  'Digit9' :
+					if (globalState.mode !== 'mixin')
+						return ;
+					globalDispatch({
+						type: 'update',
+						payload: {
+							mixinLength: globalState.mixinLength + cToA(e.code)
+						}
+					})
+					break;
+				case 'KeyM':
+					globalDispatch({
+						type: 'update',
+						payload: {
+							mode: 'mixin',
+							mixinLength:'',
+						}
+					})
+					break;
 				case 'KeyA':
 				case 'AltLeft':
 				case 'AltRight':
@@ -131,18 +163,46 @@ const ContextsProvider = ({children}: Props) => {
 					})
 					break;
 				case 'Enter':
-					if (globalState.newConfiguration.length > 0){
-						const nextConfigurations:FetchedData[] = structuredClone(globalState.configurations);
-						const newConfiguration:FetchedData = {
+					let nextConfigurations:FetchedData[] = [];
+					let newConfiguration:FetchedData = {id: '', images: []}
+					if (globalState.mode === 'mixin'){
+						if (!globalState.configurations)
+							return ;
+						const images = [...globalState.configurations[globalState.currentConfiguration].images];
+						const length = parseInt(globalState.mixinLength) > images.length ? images.length : parseInt(globalState.mixinLength);
+						const newImages:string[] = [];
+						let index = 0;
+						while (index < length){
+							let randIndex = 0;
+							do {
+								randIndex = Math.round(Math.random() * (images.length - 1));
+							}
+							while (newImages.includes(images[randIndex]));
+							newImages.push(images[randIndex])
+							index += 1;
+						}
+						nextConfigurations = structuredClone(globalState.configurations);
+						newConfiguration = {
+							id: idGenerator(4),
+							images: newImages
+						}
+						nextConfigurations.splice(globalState.currentConfiguration + 1, 0, newConfiguration)
+					}
+					if (globalState.mode === 'aligned' && globalState.newConfiguration.length > 0){
+						nextConfigurations = structuredClone(globalState.configurations);
+						newConfiguration = {
 							id: idGenerator(4),
 							images: [...globalState.newConfiguration]
 						}
 						nextConfigurations.splice(globalState.currentConfiguration + 1, 0, newConfiguration)
+					}
+					if (nextConfigurations.length){
 						globalDispatch({
 							type: 'update',
 							payload: {
 								total: nextConfigurations.reduce((previous, current) => previous + current.images.length, 0),
 								mode: 'default',
+								mixinLength:'',
 								configurations: nextConfigurations,
 								currentConfiguration: globalState.currentConfiguration + 1,
 								newConfiguration: []
@@ -162,7 +222,8 @@ const ContextsProvider = ({children}: Props) => {
 					globalDispatch({
 						type: 'update',
 						payload: {
-							mode: 'selection'
+							mode: 'selection',
+							mixinLength:'',
 						}
 					})
 					break ;
@@ -198,11 +259,10 @@ const ContextsProvider = ({children}: Props) => {
 					break;
 				case 'Escape' :
 				case 'Space' :
-					if (globalState.mode === 'zoom'
-						|| globalState.mode === 'aligned'
-						|| globalState.mode === 'selection')
+					if (globalState.mode !== 'default')
 						globalDispatch({type: 'update', payload: {
 							mode: 'default',
+							mixinLength: '',
 							newConfiguration: []
 						}});
 					break;
