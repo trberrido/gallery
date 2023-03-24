@@ -110,7 +110,7 @@ const ContextsProvider = ({children}: Props) => {
 	const [globalState, globalDispatch] = useReducer(reducer, initialGlobalState);
 
 	useEffect(() => {
-		fetch('http://' + window.location.hostname + ':8000/api/')
+		fetch('http://' + window.location.hostname + '/api/')
 			.then(response => response.json())
 			.then((result:FetchedData[]) => {
 				globalDispatch({type: 'update', payload: {
