@@ -39,7 +39,7 @@ const Image = memo(({ src, height, indexImage, indexConfiguration, highLight, se
 
 			return () => clearTimeout(refTimer.current)
 		}
-
+		// eslint-disable-next-line
 	}, [globalState.currentConfiguration, globalState.loaded])
 
 	const handleClick = (e:React.MouseEvent<HTMLImageElement, MouseEvent>) => {
@@ -90,7 +90,8 @@ const Image = memo(({ src, height, indexImage, indexConfiguration, highLight, se
 				}
 			}
 		}
-		setState('default')
+		setState('default');
+		// eslint-disable-next-line
 	}, [highLight])
 
 	useEffect(() => {
@@ -109,7 +110,6 @@ const Image = memo(({ src, height, indexImage, indexConfiguration, highLight, se
 			alt=''
 			height={height}
 			onClick={handleClick}
-	//		src={ 'https://' + window.location.hostname + src }
 			src={ src }
 			onLoad={handleLoading} />
 	);
