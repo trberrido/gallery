@@ -153,16 +153,16 @@ const Configuration = memo(({images, index}: ConfigurationProps) => {
 	return (
 		<div className={'configuration configuration' + (display && isComplete ? '--visible' : '--hidden')}>
 			{
-				listImages.map(imageData => imageData.src).map((image, indexImage) => (
+				listImages.map((image, indexImage) => (
 					<Image
 						highLight={highlight}
 						setHighLight={setHighLight}
 						height={height}
 						handleLoading={handleLoading}
-						key={image}
+						key={image.src}
 						indexConfiguration={index}
 						indexImage={indexImage}
-						src={image} />
+						src={image.src} />
 				))
 			}
 			{
