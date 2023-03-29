@@ -1,4 +1,14 @@
-#Header set Access-Control-Allow-Origin "localhost:3000"
-#Header set Access-Control-Allow-Methods "GET, POST, PATCH, PUT, DELETE, OPTIONS"
-#Header set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, X-Auth-Token"
-#Header set Access-Control-Allow-Credentials true
+# *
+Header set Access-Control-Allow-Origin http://gallery.dafox.co:3000
+Header set Access-Control-Allow-Methods "GET, POST, PATCH, PUT, DELETE, OPTIONS"
+Header set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, X-Auth-Token"
+Header set Access-Control-Allow-Credentials true
+
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+DirectoryIndex index.php
+RewriteRule ^(.+)$ dex.php [QSA,L]
+
+AddType application/json json php
+php_value default_mimetype application/json
