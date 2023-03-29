@@ -110,7 +110,10 @@ const ContextsProvider = ({children}: Props) => {
 	const [globalState, globalDispatch] = useReducer(reducer, initialGlobalState);
 
 	useEffect(() => {
-		fetch('https://' + window.location.hostname + '/api/')
+		// below for online dev
+//		fetch('https://' + window.location.hostname + '/api/')
+		// below for local bundle
+		fetch(window.location.href + 'api/')
 			.then(response => response.json())
 			.then((result:FetchedData[]) => {
 				globalDispatch({type: 'update', payload: {
@@ -177,6 +180,8 @@ const ContextsProvider = ({children}: Props) => {
 						}
 					})
 					break;
+				case 'ShiftLeft':
+				case 'ShiftRight':
 				case 'Enter':
 					let nextConfigurations:FetchedData[] = [];
 					let newConfiguration:FetchedData = {id: '', images: []}
