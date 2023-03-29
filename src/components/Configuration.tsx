@@ -28,8 +28,9 @@ type Action = {
 const reducer = (state: State, action: Action):State => {
 	if (action.type === 'loaded'){
 		const loaded = state.loaded + 1;
-		const imagesData = structuredClone(state.orderedImages);
-		imagesData.push(action.payload);
+		const imagesData = structuredClone(state.orderedImages) as ImagesInformations[];
+		const index = state.data.findIndex(item => item === action.payload.src)
+		imagesData[index] = action.payload;
 		if (loaded === state.data?.length)
 			state.setIsComplete(true);
 		return ({...state,
@@ -68,8 +69,8 @@ const Configuration = memo(({images, index}: ConfigurationProps) => {
 			payload: {
 				src: e.currentTarget.src,
 				dimensions: {
-					w: e.currentTarget.width,
-					h: e.currentTarget.height,
+					w: e.currentTarget.naturalWidth,
+					h: e.currentTarget.naturalHeight
 				}
 			}
 		})
@@ -80,24 +81,26 @@ const Configuration = memo(({images, index}: ConfigurationProps) => {
 	}
 
 	const fitResize = (list:ImagesInformations[]) => {
-		let newHeight = window.innerHeight;
-		const dimensions = list.map(image => image.dimensions!);
+		const windowWidth = window.innerWidth;
+		const windowHeight = window.innerHeight;
+		const dimensions:Dimensions[] = list.map(image => image.dimensions!);
+		var newHeight = windowHeight;
 		do {
-			let safeHeight = newHeight;
-			let dimensionsTmp = dimensions.map((d) => ({ w: Math.ceil(safeHeight * d.w / d.h), h: safeHeight}))
-			var {nbRows} = dimensionsTmp.reduce((acc, curr) => {
-				let nextAcc = {
-					width: acc.width + curr.w,
-					nbRows: acc.nbRows
-				}
-				if (nextAcc.width >= window.innerWidth * .8){
-					nextAcc.width = 0;
-					nextAcc.nbRows += 1;
-				}
-				return nextAcc;
+			const getUpdatedDimensions = (height:number, dimensions:Dimensions[]):Dimensions[] => {
+				return dimensions.map((d) => ({ w: height * d.w / d.h, h: height }) )
+			}
+			const dimensionsUpdated = getUpdatedDimensions(newHeight, dimensions);
+			var {nbRows} = dimensionsUpdated.reduce((acc, curr) => {
+				// note : the +2 corresponds to the images margins.
+				const width = acc.width + curr.w + 2 >= windowWidth ? curr.w + 2 : acc.width + curr.w + 2
+				const rows = acc.width + curr.w + 2 >= windowWidth ? acc.nbRows + 1 : acc.nbRows
+				return ({
+					nbRows: rows,
+					width: width
+				});
 			}, {nbRows: 1, width: 0})
 			newHeight -= 1;
-		} while (nbRows * newHeight > window.innerHeight)
+		} while (nbRows * (newHeight + 2) > windowHeight)
 		return newHeight;
 	}
 
@@ -108,16 +111,13 @@ const Configuration = memo(({images, index}: ConfigurationProps) => {
 	}, [listImages])
 
 	useEffect(() => {
-		if (isComplete === true){
+		if (isComplete === true)
 			setListImages(structuredClone(state.orderedImages));
-		}
 		// eslint-disable-next-line
 	}, [isComplete])
 
 	useEffect(() => {
-		const handleResize = () => {
-			setHeight(fitResize(listImages));
-		};
+		const handleResize = () => setHeight(fitResize(listImages)) ;
 		window.addEventListener('resize', handleResize);
 		return () => window.removeEventListener('resize', handleResize);
 		// eslint-disable-next-line

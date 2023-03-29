@@ -110,9 +110,7 @@ const ContextsProvider = ({children}: Props) => {
 	const [globalState, globalDispatch] = useReducer(reducer, initialGlobalState);
 
 	useEffect(() => {
-		console.log(window)
-		console.log(window.location)
-		fetch( window.location.href + '/api/')
+		fetch('https://' + window.location.hostname + '/api/')
 			.then(response => response.json())
 			.then((result:FetchedData[]) => {
 				globalDispatch({type: 'update', payload: {
@@ -123,18 +121,33 @@ const ContextsProvider = ({children}: Props) => {
 	}, []);
 
 	useEffect(() => {
-		const handleKeyUp = (e: KeyboardEvent) => {
+		const handleKeyDown = (e: KeyboardEvent) => {
 			switch (e.code){
-				case  'Digit0' :
-				case  'Digit1' :
-				case  'Digit2' :
-				case  'Digit3' :
-				case  'Digit4' :
-				case  'Digit5' :
-				case  'Digit6' :
-				case  'Digit7' :
-				case  'Digit8' :
-				case  'Digit9' :
+				case 'ShiftLeft':
+				case 'ShiftRight':
+					globalDispatch({
+						type: 'update',
+						payload: {
+							mode: 'selection',
+							mixinLength:'',
+						}
+					})
+					break;
+			}
+		};
+		const handleKeyUp = (e: KeyboardEvent) => {
+			console.log(e.code)
+			switch (e.code){
+				case 'Digit0' :
+				case 'Digit1' :
+				case 'Digit2' :
+				case 'Digit3' :
+				case 'Digit4' :
+				case 'Digit5' :
+				case 'Digit6' :
+				case 'Digit7' :
+				case 'Digit8' :
+				case 'Digit9' :
 					if (globalState.mode !== 'mixin')
 						return ;
 					globalDispatch({
@@ -145,6 +158,7 @@ const ContextsProvider = ({children}: Props) => {
 					})
 					break;
 				case 'KeyM':
+				case 'Semicolon' :
 					globalDispatch({
 						type: 'update',
 						payload: {
@@ -276,8 +290,10 @@ const ContextsProvider = ({children}: Props) => {
 				break;
 			}
 		};
+		window.addEventListener('keydown', handleKeyDown);
 		window.addEventListener('keyup', handleKeyUp);
 		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
 			window.removeEventListener('keyup', handleKeyUp);
 		};
 	}, [globalState])

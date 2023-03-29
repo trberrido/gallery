@@ -108,10 +108,11 @@ const Image = memo(({ src, height, indexImage, indexConfiguration, highLight, se
 				+ (state === 'selected' ? ' configuration__image--selected' : '')
 				+ (state === 'faded' ? ' configuration__image--faded' : '')}
 			alt=''
-			height={height}
-			onClick={handleClick}
+			height={ height }
+			width='auto'
+			onClick={ handleClick }
 			src={ src }
-			onLoad={handleLoading} />
+			onLoad={ handleLoading } />
 	);
 
 })
