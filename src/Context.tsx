@@ -110,10 +110,8 @@ const ContextsProvider = ({children}: Props) => {
 	const [globalState, globalDispatch] = useReducer(reducer, initialGlobalState);
 
 	useEffect(() => {
-		// below for online dev
-//		fetch('https://' + window.location.hostname + '/api/')
-		// below for local bundle
-		fetch(window.location.href + 'api/')
+		const base = window.location.port === '3000' ? 'https://' + window.location.hostname : window.location.href;
+		fetch(base + '/api/')
 			.then(response => response.json())
 			.then((result:FetchedData[]) => {
 				globalDispatch({type: 'update', payload: {
@@ -124,10 +122,9 @@ const ContextsProvider = ({children}: Props) => {
 	}, []);
 
 	useEffect(() => {
-		const handleKeyDown = (e: KeyboardEvent) => {
-			switch (e.code){
-				case 'ShiftLeft':
-				case 'ShiftRight':
+		const handleKeyPress = (e: KeyboardEvent) => {
+			switch (e.key){
+				case 'Shift':
 					globalDispatch({
 						type: 'update',
 						payload: {
@@ -139,18 +136,27 @@ const ContextsProvider = ({children}: Props) => {
 			}
 		};
 		const handleKeyUp = (e: KeyboardEvent) => {
-			console.log(e.code)
 			switch (e.code){
-				case 'Digit0' :
-				case 'Digit1' :
-				case 'Digit2' :
-				case 'Digit3' :
-				case 'Digit4' :
-				case 'Digit5' :
-				case 'Digit6' :
-				case 'Digit7' :
-				case 'Digit8' :
-				case 'Digit9' :
+				case 'Digit0':
+				case 'Numpad0':
+				case 'Digit1':
+				case 'Numpad1':
+				case 'Digit2':
+				case 'Numpad2':
+				case 'Digit3':
+				case 'Numpad3':
+				case 'Digit4':
+				case 'Numpad4':
+				case 'Digit5':
+				case 'Numpad5':
+				case 'Digit6':
+				case 'Numpad6':
+				case 'Digit7':
+				case 'Numpad7':
+				case 'Digit8':
+				case 'Numpad8':
+				case 'Digit9':
+				case 'Numpad9':
 					if (globalState.mode !== 'mixin')
 						return ;
 					globalDispatch({
@@ -159,9 +165,11 @@ const ContextsProvider = ({children}: Props) => {
 							mixinLength: globalState.mixinLength + cToA(e.code)
 						}
 					})
-					break;
-				case 'KeyM':
-				case 'Semicolon' :
+					break ;
+			}
+			switch (e.key){
+				case 'm':
+				case 'M':
 					globalDispatch({
 						type: 'update',
 						payload: {
@@ -170,9 +178,8 @@ const ContextsProvider = ({children}: Props) => {
 						}
 					})
 					break;
-				case 'KeyA':
-				case 'AltLeft':
-				case 'AltRight':
+				case 'a':
+				case 'A':
 					globalDispatch({
 						type: 'update',
 						payload: {
@@ -180,8 +187,6 @@ const ContextsProvider = ({children}: Props) => {
 						}
 					})
 					break;
-				case 'ShiftLeft':
-				case 'ShiftRight':
 				case 'Enter':
 					let nextConfigurations:FetchedData[] = [];
 					let newConfiguration:FetchedData = {id: '', images: []}
@@ -230,7 +235,8 @@ const ContextsProvider = ({children}: Props) => {
 						})
 					}
 					break ;
-				case 'KeyR':
+				case 'r':
+				case 'R':
 					globalDispatch({
 						type: 'update',
 						payload: {
@@ -238,7 +244,8 @@ const ContextsProvider = ({children}: Props) => {
 						}
 					})
 					break ;
-				case 'KeyS':
+				case 's':
+				case 'S':
 					globalDispatch({
 						type: 'update',
 						payload: {
@@ -247,7 +254,8 @@ const ContextsProvider = ({children}: Props) => {
 						}
 					})
 					break ;
-				case 'KeyO':
+				case 'o':
+				case 'O':
 					globalDispatch({
 						type: 'update',
 						payload: {
@@ -263,9 +271,9 @@ const ContextsProvider = ({children}: Props) => {
 						groupLength = globalState.configurations![globalState.currentConfiguration].images.length
 						nextElement = globalState.currentZoom;
 					}
-					if (e.code === 'ArrowLeft')
+					if (e.key === 'ArrowLeft')
 						nextElement -= 1;
-					if (e.code === 'ArrowRight')
+					if (e.key === 'ArrowRight')
 						nextElement += 1;
 					if (nextElement < 0)
 						nextElement = groupLength - 1;
@@ -278,7 +286,7 @@ const ContextsProvider = ({children}: Props) => {
 					}
 					break;
 				case 'Escape' :
-				case 'Space' :
+				case ' ' :
 					if (globalState.mode !== 'default')
 						globalDispatch({type: 'update', payload: {
 							mode: 'default',
@@ -286,8 +294,10 @@ const ContextsProvider = ({children}: Props) => {
 							newConfiguration: []
 						}});
 					break;
-				case 'KeyN' :
-				case 'KeyB' :
+				case 'n' :
+				case 'N' :
+				case 'b' :
+				case 'B' :
 					if (globalState.loaded !== globalState.total)
 						return ;
 					const newStatus = globalState.status === 'open' ? 'closed' : 'open';
@@ -295,10 +305,10 @@ const ContextsProvider = ({children}: Props) => {
 				break;
 			}
 		};
-		window.addEventListener('keydown', handleKeyDown);
+		window.addEventListener('keydown', handleKeyPress);
 		window.addEventListener('keyup', handleKeyUp);
 		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
+			window.removeEventListener('keydown', handleKeyPress);
 			window.removeEventListener('keyup', handleKeyUp);
 		};
 	}, [globalState])

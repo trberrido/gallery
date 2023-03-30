@@ -117,7 +117,10 @@ const Configuration = memo(({images, index}: ConfigurationProps) => {
 	}, [isComplete])
 
 	useEffect(() => {
-		const handleResize = () => setHeight(fitResize(listImages)) ;
+		const handleResize = () => {
+			if (isComplete)
+				setHeight(fitResize(listImages))
+		};
 		window.addEventListener('resize', handleResize);
 		return () => window.removeEventListener('resize', handleResize);
 		// eslint-disable-next-line

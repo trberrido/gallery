@@ -34,7 +34,7 @@ const Image = memo(({ src, height, indexImage, indexConfiguration, highLight, se
 
 			const timer:NodeJS.Timeout = setTimeout(() => {
 				setFadeIn(true);
-			}, (indexImage + 1) * 100);
+			}, (indexImage + 1) * 25);
 			refTimer.current = timer;
 
 			return () => clearTimeout(refTimer.current)
